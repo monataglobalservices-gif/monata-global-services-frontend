@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { ArrowRight, Check, LogOut, MessageCircle, Paperclip, RefreshCw, Send, X } from 'lucide-react';
-const API = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace(/\/$/, '');
+const API = (import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:5000/api' : 'https://monata-global-services-backend.onrender.com/api')).replace(/\/$/, '');
 
 const DEPARTMENTS = ['VIRTUAL_ASSISTANCE', 'DEVELOPMENT', 'SOCIAL_MEDIA', 'DIGITAL_MARKETING', 'CUSTOMER_SUPPORT'];
 const pretty = (value = '') => String(value).replaceAll('_', ' ').toLowerCase().replace(/\b\w/g, (letter) => letter.toUpperCase());

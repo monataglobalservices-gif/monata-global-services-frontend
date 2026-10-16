@@ -3,7 +3,7 @@ const links = {
   process: { label: 'See how it works', href: '#approach' },
   start: { label: 'Start a conversation', action: 'request' },
   login: { label: 'Open client sign in', action: 'login' },
-  contact: { label: 'Email the Monata team', href: 'mailto:hello@monataglobal.com' },
+  contact: { label: 'Email the Monata team', href: 'mailto:monataglobalservices@gmail.com' },
 };
 
 const departments = {
@@ -97,7 +97,7 @@ export function getAgentReply(input) {
     text: 'Sign in to your Monata workspace. Depending on your account role, it can show projects, tasks, service requests, support tickets, messages, quotes, invoices, notifications and files connected to your work. If you cannot see an item, ask your coordinator to check that it is linked to your account.', link: links.login, suggestions: ['How do I get started?', 'How do I contact my team?']
   };
   if (includesAny(q, ['contact','email address','phone number','talk to a person','human','speak to someone','reach the team'])) return {
-    text: 'You can reach the Monata team at hello@monataglobal.com, or start a service request here and share what you need. A team member can confirm details this local assistant does not know.', link: links.contact, secondary: links.start
+    text: 'You can reach the Monata team at monataglobalservices@gmail.com, or start a service request here and share what you need. A team member can confirm details this local assistant does not know.', link: links.contact, secondary: links.start
   };
   if (includesAny(q, ['how are you','what is your name','your name','are you a bot','are you human','who made you'])) return {
     text: 'I am Monata Agent, the website’s built-in guide. I use Monata’s local service and platform information, so I can help you find the right next step. I am not a human and I do not use an external AI service.', suggestions: ['What services do you offer?', 'How do I get started?']
