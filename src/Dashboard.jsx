@@ -10,12 +10,12 @@ export default function Dashboard({ user, api, logout, onRequest }) {
   const admin = user.role === 'ADMIN';
   const agent = user.role === 'AGENT';
   const tabs = admin
-    ? ['Overview', 'Requests', 'Projects', 'Tasks', 'Support', 'Messages', 'Files', 'Clients & team', 'Catalog', 'Quotes & invoices', 'Monata Agent report', 'Reports', 'Activity', 'Notifications']
+    ? ['Overview', 'Requests', 'Projects', 'Tasks', 'Support', 'Messages', 'Files', 'Clients & team', 'Trash', 'Catalog', 'Quotes & invoices', 'Monata Agent report', 'Reports', 'Activity', 'Notifications']
     : agent
       ? ['Overview', 'My work', 'Requests', 'Support', 'Files', 'Messages', 'Quotes', 'Availability', 'Notifications']
       : ['Overview', 'Projects', 'Tasks', 'Requests', 'Support', 'Files', 'Messages', 'Quotes', 'Invoices', 'Notifications'];
   const specs = admin
-    ? { stats: '/admin/stats', services: '/services', files: '/files', messages: '/messages', agentReports: '/admin/agent-reports', requests: '/service-requests', projects: '/projects', tasks: '/tasks', tickets: '/tickets', users: '/users?pageSize=100', agents: '/assistants?pageSize=100', quotes: '/quotes', invoices: '/invoices', reports: '/admin/reports/performance', audit: '/admin/audit-logs?pageSize=100', notifications: '/notifications' }
+    ? { stats: '/admin/stats', services: '/services', files: '/files', messages: '/messages', agentReports: '/admin/agent-reports', requests: '/service-requests', projects: '/projects', tasks: '/tasks', tickets: '/tickets', users: '/users?pageSize=100', trash: '/users/trash', agents: '/assistants?pageSize=100', quotes: '/quotes', invoices: '/invoices', reports: '/admin/reports/performance', audit: '/admin/audit-logs?pageSize=100', notifications: '/notifications' }
     : agent
       ? { projects: '/projects', tasks: '/tasks', requests: '/service-requests', tickets: '/tickets', files: '/files', quotes: '/quotes', messages: '/messages', calls: '/calls', notifications: '/notifications', agents: '/assistants' }
       : { projects: '/projects', tasks: '/tasks', requests: '/service-requests', tickets: '/tickets', files: '/files', messages: '/messages', agents: '/assistants?pageSize=100', quotes: '/quotes', invoices: '/invoices', notifications: '/notifications' };
@@ -24,6 +24,7 @@ export default function Dashboard({ user, api, logout, onRequest }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [working, setWorking] = useState('');
+  const [positionDrafts, setPositionDrafts] = useState({});
   const [formKind, setFormKind] = useState('');
   const [ticketForm, setTicketForm] = useState({ title: '', category: 'General', description: '' });
   const [showTicketForm, setShowTicketForm] = useState(false);
@@ -313,7 +314,7 @@ export default function Dashboard({ user, api, logout, onRequest }) {
   ].sort((a, b) => new Date(b.createdAt || b.updatedAt || 0) - new Date(a.createdAt || a.updatedAt || 0)).slice(0, 4);
   const goTo = (nextTab) => setTab(nextTab);
   const sectionMap = admin
-    ? { Requests: ['requests'], Projects: ['projects'], Tasks: ['tasks'], Support: ['tickets'], Messages: ['messages'], 'Clients & team': ['users', 'agents'], Catalog: ['services'], 'Quotes & invoices': ['quotes', 'invoices'], 'Monata Agent report': ['agentReports'], Reports: ['reports'], Activity: ['audit'] }
+    ? { Requests: ['requests'], Projects: ['projects'], Tasks: ['tasks'], Support: ['tickets'], Messages: ['messages'], 'Clients & team': ['users', 'agents'], Trash: ['trash'], Catalog: ['services'], 'Quotes & invoices': ['quotes', 'invoices'], 'Monata Agent report': ['agentReports'], Reports: ['reports'], Activity: ['audit'] }
     : agent
       ? { 'My work': ['tasks', 'projects'], Requests: ['requests'], Support: ['tickets'], Messages: ['messages'], Quotes: ['quotes'], Availability: ['profile', 'calls'] }
       : { Projects: ['projects'], Tasks: ['tasks'], Requests: ['requests'], Support: ['tickets'], Messages: ['messages'], Quotes: ['quotes'], Invoices: ['invoices'] };
@@ -321,7 +322,7 @@ export default function Dashboard({ user, api, logout, onRequest }) {
     ? (admin ? ['requests', 'projects', 'tasks', 'tickets', 'notifications'] : agent ? ['tasks', 'requests', 'projects', 'notifications'] : [])
     : tab === 'Messages' ? []
     : tab === 'Notifications' ? ['notifications'] : sectionMap[tab] || [];
-  const titleFor = (key) => ({ requests: 'Service requests', tickets: 'Support tickets', audit: 'Recent activity', agents: 'Agents', users: 'Clients and team', agentReports: 'Monata Agent report' }[key] || pretty(key));
+  const titleFor = (key) => ({ requests: 'Service requests', tickets: 'Support tickets', audit: 'Recent activity', agents: 'Agents', users: 'Clients and team', trash: 'Trashed users', agentReports: 'Monata Agent report' }[key] || pretty(key));
   const getItems = (key) => {
     if (key === 'notifications') return notifications.notifications || [];
     if (key === 'reports') return list('reports');
@@ -338,7 +339,11 @@ export default function Dashboard({ user, api, logout, onRequest }) {
     if (key === 'tickets' && agent && !['RESOLVED', 'CLOSED'].includes(item.status)) return <button className="dash-action" disabled={working === item.id} onClick={() => mutate(item.id, `/tickets/${item.id}`, { status: item.status === 'OPEN' ? 'IN_PROGRESS' : 'RESOLVED' }, 'PUT')}>{item.status === 'OPEN' ? 'Start responding' : 'Resolve ticket'}</button>;
     if (key === 'invoices' && admin) return <select aria-label="Update invoice status" value={item.status} onChange={(event) => mutate(item.id, `/invoices/${item.id}`, { status: event.target.value }, 'PUT')}><option>DRAFT</option><option>SENT</option><option>PAID</option><option>OVERDUE</option><option>CANCELLED</option></select>;
     if (key === 'projects' && (admin || agent)) return <span className="dash-buttons">{admin && <select aria-label="Update project status" value={item.status} onChange={(event) => mutate(item.id, `/projects/${item.id}`, { status: event.target.value }, 'PUT')}><option>PLANNING</option><option>ACTIVE</option><option>ON_HOLD</option><option>COMPLETED</option><option>CANCELLED</option></select>}<button className="dash-action secondary" onClick={() => addMilestone(item)}>Add milestone</button>{admin && <button className="dash-action secondary" disabled={working === item.id} onClick={() => mutate(item.id, `/projects/${item.id}`, undefined, 'DELETE')}>Delete project</button>}</span>;
-    if (key === 'users' && admin && item.id !== user.id && item.isActive) return <button className="dash-action secondary" disabled={working === item.id} onClick={() => mutate(item.id, `/users/${item.id}`, undefined, 'DELETE')}>Deactivate</button>;
+    if (key === 'users' && admin && item.id !== user.id && item.role !== 'ADMIN') {
+      const draft = positionDrafts[item.id] || { role: item.role, department: item.department || DEPARTMENTS[0] };
+      return <div className="dash-inline-actions"><select aria-label={`Role for ${item.email}`} value={draft.role} onChange={(event) => setPositionDrafts((items) => ({ ...items, [item.id]: { ...draft, role: event.target.value } }))}><option value="CLIENT">Client</option><option value="AGENT">Agent</option></select><select aria-label={`Department for ${item.email}`} value={draft.department} onChange={(event) => setPositionDrafts((items) => ({ ...items, [item.id]: { ...draft, department: event.target.value } }))}>{DEPARTMENTS.map((value) => <option key={value} value={value}>{pretty(value)}</option>)}</select><button className="dash-action" disabled={working === item.id} onClick={() => mutate(item.id, `/users/${item.id}/position`, draft, 'PATCH')}>Save position</button><button className="dash-action secondary" disabled={working === item.id} onClick={() => { if (window.confirm(`Move ${item.firstName} ${item.lastName} to Trash?`)) mutate(item.id, `/users/${item.id}`, undefined, 'DELETE'); }}>Move to Trash</button></div>;
+    }
+    if (key === 'trash' && admin) return <div className="dash-inline-actions"><button className="dash-action" disabled={working === item.id} onClick={() => mutate(item.id, `/users/${item.id}/restore`, {}, 'POST')}>Restore</button><button className="dash-action secondary" disabled={working === item.id} onClick={() => { if (window.confirm(`Permanently delete ${item.firstName} ${item.lastName}? This cannot be undone.`)) mutate(item.id, `/users/${item.id}/permanent`, undefined, 'DELETE'); }}>Delete permanently</button></div>;
     return null;
   };
 
