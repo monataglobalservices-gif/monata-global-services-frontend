@@ -80,7 +80,7 @@ function ServiceDetailPage({service,details,onBack,onRequest}){
 
 function App(){
   const portalPath=window.location.pathname.replace(/\/+$/,'').replace(/\/+/g,'/').toLowerCase()||'/';
-  const staffPortalRole=portalPath==='/admin'?'ADMIN':portalPath==='/agent'?'AGENT':portalPath==='/referrer'?'REFERRER':null;
+  const staffPortalRole=portalPath==='/admin'?'ADMIN':portalPath==='/agent'?'AGENT':(portalPath==='/referrer'||portalPath.startsWith('/referrer/'))?'REFERRER':null;
   const [services,setServices]=useState(fallbackServices), [user,setUser]=useState(null), [projects,setProjects]=useState([]), [requests,setRequests]=useState([]);
   const [activeService,setActiveService]=useState(null), [activeAbout,setActiveAbout]=useState(false);
   const [modal,setModal]=useState(staffPortalRole?'auth':null), [selected,setSelected]=useState(null), [menu,setMenu]=useState(false), [notice,setNotice]=useState(''), [busy,setBusy]=useState(false), [error,setError]=useState(''), [loginRole,setLoginRole]=useState(staffPortalRole||'CLIENT'), [authStep,setAuthStep]=useState('password'), [mfaCode,setMfaCode]=useState(''), [mfaPending,setMfaPending]=useState(null);
