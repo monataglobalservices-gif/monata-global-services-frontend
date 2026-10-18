@@ -34,8 +34,10 @@ const serviceDetails = {
 const fallbackServices = departments.map((d,i)=>({id:d.id,department:d.id,name:d.name,slug:d.id.toLowerCase().replaceAll('_','-'),description:d.copy,iconName:['sparkles','code','layers','compass','headphones'][i]}));
 
 async function api(path, options={}) {
-  const token = localStorage.getItem('monata-token');
-  const request = (accessToken) => { const headers = { ...(options.body instanceof FormData ? {} : { 'Content-Type': 'application/json' }), ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}), ...options.headers }; return fetch(`${API}${path}`, { ...options, headers }); };
+  const { auth = true, ...fetchOptions } = options;
+  const publicAuthRoutes = ['/auth/login', '/auth/register', '/auth/refresh'];
+  const token = auth && !publicAuthRoutes.includes(path) ? localStorage.getItem('monata-token') : null;
+  const request = (accessToken) => { const headers = { ...(fetchOptions.body instanceof FormData ? {} : { 'Content-Type': 'application/json' }), ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}), ...fetchOptions.headers }; return fetch(`${API}${path}`, { ...fetchOptions, headers }); };
   let res = await request(token);
   if(res.status===401&&token&&localStorage.getItem('monata-refresh')&&!['/auth/login','/auth/register','/auth/refresh','/auth/logout'].includes(path)) {
     try {
@@ -91,7 +93,7 @@ function App(){
   useEffect(()=>{const trackPage=()=>{const pageUrl=window.location.pathname+window.location.search+window.location.hash;api('/analytics/page-view',{method:'POST',body:JSON.stringify({url:pageUrl,title:document.title,referrer:document.referrer||undefined})}).catch(()=>{});};trackPage();window.addEventListener('hashchange',trackPage);return()=>window.removeEventListener('hashchange',trackPage);},[]);
   const openLogin=(role='CLIENT')=>{setLoginRole(role);setAuthStep('password');setMfaCode('');setMfaPending(null);setModal('auth');setError('');};
   useEffect(()=>{const syncPage=()=>{const hash=window.location.hash;const match=hash.match(/^#service\/([^/?#]+)/);const id=match?.[1]?.replaceAll('-','_').toUpperCase();const page=departments.find(d=>d.id===id)||null;const about=hash==='#about-us';setActiveService(page);setActiveAbout(about);if(page||about)window.scrollTo(0,0)};syncPage();window.addEventListener('hashchange',syncPage);return()=>window.removeEventListener('hashchange',syncPage)},[]);
-  useEffect(()=>{api('/services').then(d=>Array.isArray(d)&&d.length&&setServices(d)).catch(()=>{}); const token=localStorage.getItem('monata-token');if(token) api('/auth/me').then(account=>{if(staffPortalRole&&account.role!==staffPortalRole){localStorage.removeItem('monata-token');localStorage.removeItem('monata-refresh');setError('This account does not have access to this staff portal.');return;}setUser(account)}).catch(()=>{localStorage.removeItem('monata-token');localStorage.removeItem('monata-refresh')});},[]);
+  useEffect(()=>{api('/services',{auth:false}).then(d=>Array.isArray(d)&&d.length&&setServices(d)).catch(()=>{}); const token=localStorage.getItem('monata-token');if(token) api('/auth/me').then(account=>{if(staffPortalRole&&account.role!==staffPortalRole){localStorage.removeItem('monata-token');localStorage.removeItem('monata-refresh');setError('This account does not have access to this staff portal.');return;}setUser(account)}).catch(()=>{localStorage.removeItem('monata-token');localStorage.removeItem('monata-refresh')});},[]);
   useEffect(()=>{if(user){api('/projects').then(d=>setProjects(d||[])).catch(()=>{});api('/service-requests').then(d=>setRequests(d||[])).catch(()=>{});}},[user]);
   useEffect(()=>{if(notice){const t=setTimeout(()=>setNotice(''),3800);return()=>clearTimeout(t)}},[notice]);
   useEffect(()=>{if(agentOpen)agentEndRef.current?.scrollIntoView({behavior:'smooth',block:'end'})},[agentMessages,agentOpen,agentTyping]);
