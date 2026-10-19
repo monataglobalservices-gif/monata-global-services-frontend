@@ -429,3 +429,15 @@ body{background:var(--paper);color:var(--ink)}
 @media(max-width:900px){.dash-panels>.dash-site-analytics{height:68dvh;min-height:360px}}
 @media(max-width:760px){.dash-site-summary-card,.dash-site-content-card{padding:18px}.dash-site-summary-card>.dash-stat-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:600px){.dash-panels>.dash-site-analytics{height:72dvh;min-height:420px}.dash-site-summary-card,.dash-site-content-card{padding:15px}.dash-site-summary-card>.dash-panel-heading{position:static;padding:0;background:#fff}}
+.language-toggle{flex:none;border:1px solid #d8dfd1;border-radius:999px;background:#fff;color:#274334;padding:7px 11px;font-size:10px;font-weight:800;letter-spacing:.04em;cursor:pointer;transition:background .2s,color .2s,border-color .2s}.language-toggle:hover{background:#263f34;color:#fff;border-color:#263f34}.topbar .nav .language-toggle{padding:8px 11px}
+@media(max-width:760px){.topbar .nav .language-toggle{align-self:flex-start;margin:9px 0 4px}}
+/* French copy keeps the English card geometry; longer details scroll inside the card. */
+[lang="fr"] .services-section .service-card{height:282px;min-height:282px}
+[lang="fr"] .services-section .service-card .service-info{flex:1;min-height:0;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#87977b transparent}
+[lang="fr"] .monata-meaning-inner{height:112px;min-height:112px;overflow:hidden}
+[lang="fr"] .monata-meaning-item p{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
+[lang="fr"] .hero>.monata-meaning .monata-meaning-inner{height:48px;min-height:48px}
+@media(max-width:760px){[lang="fr"] .services-section .service-card{height:275px;min-height:275px}}
+@media(max-width:760px){[lang="fr"] .hero>.monata-meaning .monata-meaning-inner{height:43px;min-height:43px}}
+@media(max-width:420px){[lang="fr"] .services-section .service-card{height:280px;min-height:280px}}
+@media(max-width:390px){[lang="fr"] .hero>.monata-meaning .monata-meaning-inner{height:40px;min-height:40px}}
