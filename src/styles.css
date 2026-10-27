@@ -441,3 +441,6 @@ body{background:var(--paper);color:var(--ink)}
 @media(max-width:760px){[lang="fr"] .hero>.monata-meaning .monata-meaning-inner{height:43px;min-height:43px}}
 @media(max-width:420px){[lang="fr"] .services-section .service-card{height:280px;min-height:280px}}
 @media(max-width:390px){[lang="fr"] .hero>.monata-meaning .monata-meaning-inner{height:40px;min-height:40px}}
+
+.footer-legal{display:flex;flex-wrap:wrap;gap:18px;padding:18px 0;border-top:1px solid #ffffff20}.footer-legal a{color:#c3ccc3;text-decoration:none;font-size:11px;transition:color .2s}.footer-legal a:hover{color:#fff}
+@media(max-width:600px){.footer-legal{gap:12px 16px}}
