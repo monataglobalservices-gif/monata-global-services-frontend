@@ -429,6 +429,13 @@ body{background:var(--paper);color:var(--ink)}
 @media(max-width:900px){.dash-panels>.dash-site-analytics{height:68dvh;min-height:360px}}
 @media(max-width:760px){.dash-site-summary-card,.dash-site-content-card{padding:18px}.dash-site-summary-card>.dash-stat-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:600px){.dash-panels>.dash-site-analytics{height:72dvh;min-height:420px}.dash-site-summary-card,.dash-site-content-card{padding:15px}.dash-site-summary-card>.dash-panel-heading{position:static;padding:0;background:#fff}}
+/* Let every analytics breakdown row contribute to the page height. The old
+   fixed-height panel clipped the page and region lists when they grew. */
+.dash-panels>.dash-site-analytics{height:auto;min-height:0;grid-template-rows:auto auto;overflow:visible}
+.dash-site-content-card{display:block;min-height:0;overflow:visible}
+.dash-site-content-card>.dash-site-breakdowns{margin:0}
+.dash-site-content-card .dash-site-recent{display:block;margin-top:20px}
+.dash-site-recent-list{max-height:320px;overflow-y:auto}
 .language-toggle{flex:none;border:1px solid #d8dfd1;border-radius:999px;background:#fff;color:#274334;padding:7px 11px;font-size:10px;font-weight:800;letter-spacing:.04em;cursor:pointer;transition:background .2s,color .2s,border-color .2s}.language-toggle:hover{background:#263f34;color:#fff;border-color:#263f34}.topbar .nav .language-toggle{padding:8px 11px}
 @media(max-width:760px){.topbar .nav .language-toggle{align-self:flex-start;margin:9px 0 4px}}
 /* French copy keeps the English card geometry; longer details scroll inside the card. */
